@@ -1,0 +1,33 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: cloudcostlens-mongodb
+    restart: unless-stopped
+    ports: ["27017:27017"]
+    volumes: ["mongo_data:/data/db"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: cloudcostlens-backend
+    restart: unless-stopped
+    depends_on: [mongodb]
+    environment:
+      CCL_MONGO_URI: mongodb://mongodb:27017
+      CCL_MONGO_DB: cloudcostlens
+      CCL_OCI_REGIONS: us-ashburn-1
+      CCL_SCHEDULER_ENABLED: "true"
+    ports: ["8000:8000"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: cloudcostlens-frontend
+    restart: unless-stopped
+    depends_on: [backend]
+    ports: ["8080:80"]
+
+volumes:
+  mongo_data:
