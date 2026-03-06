@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudcostlens-backend
+  namespace: cloudcostlens
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: cloudcostlens-backend }
+  template:
+    metadata:
+      labels: { app: cloudcostlens-backend }
+    spec:
+      containers:
+      - name: backend
+        image: cloudcostlens/backend:latest
+        ports: [{ containerPort: 8000 }]
+        env:
+        - name: CCL_MONGO_URI
+          value: mongodb://mongodb:27017
+        - name: CCL_MONGO_DB
+          value: cloudcostlens
+        - name: CCL_OCI_REGIONS
+          value: us-ashburn-1
+        resources:
+          requests: { cpu: "100m", memory: "192Mi" }
+          limits: { cpu: "300m", memory: "300Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudcostlens-backend
+  namespace: cloudcostlens
+spec:
+  selector: { app: cloudcostlens-backend }
+  ports: [{ port: 8000, targetPort: 8000 }]

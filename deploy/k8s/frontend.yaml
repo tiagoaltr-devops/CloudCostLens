@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudcostlens-frontend
+  namespace: cloudcostlens
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: cloudcostlens-frontend }
+  template:
+    metadata:
+      labels: { app: cloudcostlens-frontend }
+    spec:
+      containers:
+      - name: frontend
+        image: cloudcostlens/frontend:latest
+        ports: [{ containerPort: 80 }]
+        resources:
+          requests: { cpu: "25m", memory: "64Mi" }
+          limits: { cpu: "100m", memory: "150Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudcostlens-frontend
+  namespace: cloudcostlens
+spec:
+  type: LoadBalancer
+  selector: { app: cloudcostlens-frontend }
+  ports: [{ port: 80, targetPort: 80 }]
